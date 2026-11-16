@@ -1,0 +1,26 @@
+# Registro de ejecuciones. Dueño: qa-ejecutor. Una fila por ejecución real; nunca filas "planificadas".
+ejecuciones: []
+# - id: EXE-20261104-001
+#   caso: TC-MOD-001
+#   fecha_hora: "2026-11-04T10:15:00-03:00"   # ISO 8601 con zona
+#   ejecutor: qa-ejecutor | "<persona>"
+#   modo: automatizada | manual | api | exploratoria
+#   ambiente: QA
+#   url: https://...
+#   version_build: "No verificada"
+#   commit: null
+#   rol: odontologo
+#   datos: {paciente: "QA-Paciente-r123"}    # sanitizados
+#   estado: aprobado | fallido | bloqueado | omitido
+#   intentos: 1
+#   exitos: 1
+#   inestable: false
+#   clasificacion_fallo: null | producto | infraestructura | datos | script | indeterminado
+#   resultado_observado: "..."
+#   evidencias: [evidencias/EXE-20261104-001/captura.png]
+#   bloqueo: null            # BLK-xxx si estado = bloqueado
+#   motivo_omision: null     # si estado = omitido
+#   hallazgos: []
+#   bug: null                # BUGD-xxx
+#   retest_de: null          # EXE original si es retest
+#   limpieza: "Paciente QA-Paciente-r123 eliminado" | null

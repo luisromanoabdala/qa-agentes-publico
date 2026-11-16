@@ -1,0 +1,97 @@
+# EJEMPLO con datos sintéticos.
+ejecuciones:
+  - id: EXE-20261103-001
+    caso: TC-AGE-001
+    fecha_hora: "2026-11-03T10:12:40-03:00"
+    ejecutor: qa-ejecutor
+    modo: automatizada
+    ambiente: QA
+    url: https://qa.dentapp.example.test/agenda
+    version_build: "1.4.0-rc2"
+    commit: e4f5a6b
+    rol: odontologo
+    datos: {paciente: "QA-Paciente-r7f3", sillon: S1}
+    estado: aprobado
+    intentos: 1
+    exitos: 1
+    inestable: false
+    clasificacion_fallo: null
+    resultado_observado: "Turno creado (201) y visible en S1 10:00-10:30, estado pendiente"
+    evidencias: [evidencias/EXE-20261103-002/README.md]
+    limpieza: "Turno y paciente r7f3 eliminados por fixture"
+  - id: EXE-20261103-002
+    caso: TC-HC-001
+    fecha_hora: "2026-11-03T10:14:05-03:00"
+    ejecutor: qa-ejecutor
+    modo: automatizada
+    ambiente: QA
+    url: https://qa.dentapp.example.test/pacientes
+    version_build: "1.4.0-rc2"
+    commit: e4f5a6b
+    rol: odontologo
+    datos: {paciente: "QA-Paciente-r7f4"}
+    estado: aprobado
+    intentos: 2
+    exitos: 1
+    inestable: true
+    clasificacion_fallo: null
+    resultado_observado: "Pasó en el 2º intento; el 1º falló por timeout esperando la pestaña Evoluciones (traza conservada)"
+    evidencias: [evidencias/EXE-20261103-002/README.md]
+    limpieza: "Paciente r7f4 eliminado"
+  - id: EXE-20261103-003
+    caso: TC-HC-002
+    fecha_hora: "2026-11-03T11:02:10-03:00"
+    ejecutor: qa-seguridad
+    modo: api
+    ambiente: QA
+    url: https://api.qa.dentapp.example.test
+    version_build: "1.4.0-rc2"
+    commit: e4f5a6b
+    rol: recepcion
+    datos: {paciente: "QA-Paciente-r7f5"}
+    estado: aprobado
+    intentos: 1
+    exitos: 1
+    inestable: false
+    clasificacion_fallo: null
+    resultado_observado: "403 con cuerpo {code: FORBIDDEN}: el hallazgo estático HAL-002 no se reproduce en el ambiente (hay un guard en el gateway)"
+    evidencias: [evidencias/EXE-20261103-002/README.md]
+    limpieza: "Paciente r7f5 eliminado"
+  - id: EXE-20261103-004
+    caso: TC-AGE-004
+    fecha_hora: "2026-11-03T11:40:22-03:00"
+    ejecutor: qa-ejecutor
+    modo: api
+    ambiente: QA
+    url: https://api.qa.dentapp.example.test/turnos
+    version_build: "1.4.0-rc2"
+    commit: e4f5a6b
+    rol: "odontologo + recepcion"
+    datos: {sillon: S3, inicio: "2026-11-04T12:00:00-03:00", duracion_min: 30, paciente: "QA-Paciente-r7f6"}
+    estado: fallido
+    intentos: 5
+    exitos: 1
+    inestable: false
+    clasificacion_fallo: producto
+    resultado_observado: "4 de 5 corridas: ambos POST devolvieron 201 y el GET listó 2 turnos superpuestos en S3 12:00"
+    evidencias: [evidencias/EXE-20261103-004/request-response.json, evidencias/EXE-20261103-004/curl.sh]
+    hallazgos: [HAL-001]
+    bug: BUGD-001
+    limpieza: "Turnos duplicados eliminados por runId"
+  - id: EXE-20261103-005
+    caso: TC-HC-003
+    fecha_hora: "2026-11-03T12:05:00-03:00"
+    ejecutor: qa-seguridad
+    modo: api
+    ambiente: QA
+    url: https://api.qa.dentapp.example.test
+    version_build: "1.4.0-rc2"
+    commit: e4f5a6b
+    rol: admin_consultorio_b
+    datos: {}
+    estado: bloqueado
+    intentos: 0
+    exitos: 0
+    bloqueo: BLK-001
+    resultado_observado: "No ejecutado: no existe cuenta del consultorio B"
+    evidencias: []

@@ -1,0 +1,2 @@
+# Dependencias de los scripts QA (Python >= 3.9). jira_bug.py usa solo la librería estándar + PyYAML.
+PyYAML>=6.0

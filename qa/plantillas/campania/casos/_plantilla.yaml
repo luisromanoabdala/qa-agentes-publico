@@ -1,0 +1,29 @@
+# Casos de prueba de un módulo. Archivo: casos/<MOD>.yaml. Dueño: qa-disenador-casos.
+# Técnicas: particiones de equivalencia, valores límite, tablas de decisión, transiciones de estado,
+# positivos/negativos, roles y permisos, concurrencia/duplicación/idempotencia, errores de red e integraciones.
+modulo: MOD
+nombre: "<Módulo>"
+casos:
+  - id: TC-MOD-001
+    titulo: "<verbo + qué + condición>"
+    objetivo: "<qué riesgo o regla verifica>"
+    requisitos: []             # IDs de campania.yaml → requisitos
+    riesgos: [RSK-001]
+    nivel: e2e                 # unitario | componente | integracion | contrato | e2e | exploratorio
+    tipo: funcional            # funcional | negativo | permisos | seguridad | concurrencia | accesibilidad | rendimiento | compatibilidad | contrato | exploratorio
+    tecnica: particion_equivalencia
+    prioridad: alta            # alta | media | baja (derivada del riesgo)
+    roles: []
+    precondiciones: []
+    datos:                     # sintéticos; secretos solo como $VARIABLE
+      {}
+    pasos:
+      - "..."
+    esperado: "<resultado verificable y observable>"
+    fuente_esperado: "<requisito/contrato/documento que respalda el esperado>"
+    limpieza: null
+    automatizacion:
+      candidato: true
+      estado: no_iniciada      # no_iniciada | implementada | no_aplica
+      ref: null                # ruta del test, p. ej. tests/e2e/agenda.spec.ts › "..."
+    estado: activo             # activo | obsoleto

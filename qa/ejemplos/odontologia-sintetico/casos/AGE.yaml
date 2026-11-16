@@ -1,0 +1,76 @@
+# EJEMPLO con datos sintéticos.
+modulo: AGE
+nombre: Agenda
+casos:
+  - id: TC-AGE-001
+    titulo: "Agendar turno en sillón libre como odontólogo"
+    objetivo: "Smoke del flujo principal de agenda"
+    requisitos: [DEMO-21]
+    riesgos: [RSK-001]
+    nivel: e2e
+    tipo: funcional
+    tecnica: caso_positivo
+    prioridad: alta
+    roles: [odontologo]
+    precondiciones: ["Paciente sintético QA-Paciente-<runId> creado por fixture", "Sillón 'S1' sin turnos el día D+1 10:00-10:30"]
+    datos: {sillon: S1, inicio: "D+1 10:00", duracion_min: 30}
+    pasos: ["Ingresar como odontólogo", "Ir a Agenda, día D+1", "Elegir S1 10:00, paciente, 30 min", "Confirmar"]
+    esperado: "El turno aparece en S1 10:00-10:30 con estado 'pendiente' y la API devuelve 201"
+    fuente_esperado: "DEMO-21 criterio 1; openapi POST /turnos 201"
+    limpieza: "Eliminar turno y paciente con runId"
+    automatizacion: {candidato: true, estado: implementada, ref: "tests/e2e/agenda.spec.ts › agendar turno en sillón libre"}
+    estado: activo
+  - id: TC-AGE-002
+    titulo: "Rechazar duración fuera de 15–240 minutos"
+    objetivo: "Valores límite de duración"
+    requisitos: [DEMO-21]
+    riesgos: [RSK-004]
+    nivel: unitario
+    tipo: negativo
+    tecnica: valores_limite
+    prioridad: media
+    roles: []
+    precondiciones: []
+    datos: {duraciones_invalidas: [14, 241, 0, -15], duraciones_validas: [15, 240]}
+    pasos: ["Invocar validarDuracion() con cada valor"]
+    esperado: "14, 241, 0 y -15 se rechazan con error 'DURACION_FUERA_DE_RANGO'; 15 y 240 se aceptan"
+    fuente_esperado: "DEMO-21 criterio 2"
+    limpieza: null
+    automatizacion: {candidato: true, estado: no_iniciada, ref: null}
+    estado: activo
+  - id: TC-AGE-003
+    titulo: "Cancelar turno confirmado libera el horario"
+    objetivo: "Transición confirmado → cancelado"
+    requisitos: [DEMO-22]
+    riesgos: [RSK-005]
+    nivel: integracion
+    tipo: funcional
+    tecnica: transicion_estados
+    prioridad: media
+    roles: [recepcion]
+    precondiciones: ["Turno confirmado en S2 D+1 11:00"]
+    datos: {sillon: S2}
+    pasos: ["PATCH /turnos/{id} estado=cancelado", "POST /turnos mismo sillón y horario"]
+    esperado: "El PATCH devuelve 200 y el nuevo POST devuelve 201"
+    fuente_esperado: "DEMO-22 criterio 1"
+    limpieza: "Eliminar turnos con runId"
+    automatizacion: {candidato: true, estado: no_iniciada, ref: null}
+    estado: activo
+  - id: TC-AGE-004
+    titulo: "Dos confirmaciones simultáneas del mismo sillón y horario crean un solo turno"
+    objetivo: "Concurrencia / idempotencia de la reserva"
+    requisitos: [DEMO-21]
+    riesgos: [RSK-001]
+    nivel: integracion
+    tipo: concurrencia
+    tecnica: concurrencia
+    prioridad: alta
+    roles: [odontologo, recepcion]
+    precondiciones: ["Sillón S3 libre D+1 12:00-12:30"]
+    datos: {sillon: S3, inicio: "D+1 12:00", duracion_min: 30, solicitudes_paralelas: 2}
+    pasos: ["Enviar 2 POST /turnos idénticos en paralelo (Promise.all) con tokens de odontólogo y recepción", "GET /turnos?sillon=S3&fecha=D+1"]
+    esperado: "Exactamente un 201 y un 409 TURNO_SUPERPUESTO; el GET lista un solo turno"
+    fuente_esperado: "DEMO-21 criterio 1; openapi POST /turnos 409"
+    limpieza: "Eliminar turnos con runId"
+    automatizacion: {candidato: true, estado: implementada, ref: "tests/integration/turnos.concurrencia.test.ts"}
+    estado: activo

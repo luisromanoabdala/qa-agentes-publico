@@ -1,0 +1,58 @@
+# EJEMPLO con datos sintéticos.
+modulo: HC
+nombre: Ficha clínica y aislamiento
+casos:
+  - id: TC-HC-001
+    titulo: "Odontólogo ve evoluciones de su paciente"
+    objetivo: "Smoke de acceso legítimo a la ficha"
+    requisitos: [DEMO-30]
+    riesgos: [RSK-003]
+    nivel: e2e
+    tipo: permisos
+    tecnica: roles
+    prioridad: alta
+    roles: [odontologo]
+    precondiciones: ["Paciente sintético con 1 evolución"]
+    datos: {}
+    pasos: ["Ingresar como odontólogo", "Abrir ficha del paciente", "Pestaña Evoluciones"]
+    esperado: "Se lista la evolución creada"
+    fuente_esperado: "DEMO-30"
+    limpieza: "Eliminar paciente con runId"
+    automatizacion: {candidato: true, estado: implementada, ref: "tests/e2e/ficha.spec.ts › odontólogo ve evoluciones"}
+    estado: activo
+  - id: TC-HC-002
+    titulo: "Recepción no puede leer evoluciones clínicas por API"
+    objetivo: "Autorización por rol en GET /pacientes/:id/evoluciones"
+    requisitos: [DEMO-30]
+    riesgos: [RSK-003]
+    nivel: integracion
+    tipo: permisos
+    tecnica: tabla_decision
+    prioridad: alta
+    roles: [recepcion]
+    precondiciones: ["Paciente sintético con 1 evolución"]
+    datos: {}
+    pasos: ["Obtener token de recepción", "GET /pacientes/{id}/evoluciones con ese token"]
+    esperado: "403 sin cuerpo clínico"
+    fuente_esperado: "DEMO-30 criterio 1"
+    limpieza: "Eliminar paciente con runId"
+    automatizacion: {candidato: true, estado: no_iniciada, ref: null}
+    estado: activo
+  - id: TC-HC-003
+    titulo: "Admin de otro consultorio no accede a pacientes ajenos"
+    objetivo: "Aislamiento entre organizaciones (IDOR)"
+    requisitos: [DEMO-30]
+    riesgos: [RSK-002]
+    nivel: integracion
+    tipo: seguridad
+    tecnica: roles
+    prioridad: alta
+    roles: [admin_consultorio_b]
+    precondiciones: ["Paciente sintético del consultorio A", "Cuenta admin del consultorio B"]
+    datos: {}
+    pasos: ["Token de admin B", "GET /pacientes/{idPacienteA}", "GET /pacientes/{idPacienteA}/evoluciones"]
+    esperado: "404 o 403 en ambos, sin datos del paciente"
+    fuente_esperado: "DEMO-30 criterio 2"
+    limpieza: "Eliminar paciente con runId"
+    automatizacion: {candidato: true, estado: no_iniciada, ref: null}
+    estado: activo

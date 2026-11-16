@@ -1,0 +1,48 @@
+# EJEMPLO con datos sintéticos.
+hallazgos:
+  - id: HAL-001
+    titulo: "Reserva concurrente del mismo sillón crea turnos superpuestos"
+    modulo: Agenda
+    confirmacion: reproducido
+    categoria: funcional
+    detectado_por: qa-analista-impacto
+    fecha: 2026-11-03
+    origen: "api/src/agenda/turnos.service.ts:58 crearTurno (SELECT + INSERT sin transacción)"
+    descripcion: "Detectado por análisis estático y reproducido en EXE-20261103-004 (4/5)"
+    ejecuciones: [EXE-20261103-004]
+    riesgos: [RSK-001]
+    bug: BUGD-001
+  - id: HAL-002
+    titulo: "Controlador de evoluciones no filtra por rol"
+    modulo: Ficha clínica
+    confirmacion: descartado
+    categoria: seguridad
+    detectado_por: qa-seguridad
+    fecha: 2026-11-03
+    origen: "api/src/ficha/evoluciones.controller.ts:listar"
+    descripcion: "El controlador no valida rol"
+    ejecuciones: [EXE-20261103-003]
+    motivo: "En el ambiente, un guard del gateway devuelve 403 a recepción (EXE-20261103-003). Se recomienda igual defensa en profundidad en el controlador (mejora, no bug)."
+    riesgos: [RSK-003]
+  - id: HAL-003
+    titulo: "GET /pacientes/:id podría no validar consultorio"
+    modulo: Pacientes
+    confirmacion: bloqueado
+    categoria: seguridad
+    detectado_por: qa-analista-impacto
+    fecha: 2026-11-03
+    origen: "api/src/pacientes/routes.ts (middleware de tenant no aplicado a la ruta)"
+    descripcion: "Hipótesis de IDOR entre consultorios; no verificable sin segunda cuenta"
+    como_verificar: "TC-HC-003 con cuenta del consultorio B"
+    bloqueo: BLK-001
+    riesgos: [RSK-002]
+  - id: HAL-004
+    titulo: "Celdas de agenda sin nombre accesible ni rol"
+    modulo: Agenda
+    confirmacion: estatico
+    categoria: testabilidad
+    detectado_por: qa-automatizacion
+    fecha: 2026-11-03
+    origen: "web/src/agenda/Slot.tsx:12 <div onClick>"
+    descripcion: "Obliga a localizadores frágiles y afecta accesibilidad (teclado/lector de pantalla)"
+    como_verificar: "Auditoría con axe y navegación por teclado en /agenda"

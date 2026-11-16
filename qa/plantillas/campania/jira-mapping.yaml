@@ -1,0 +1,31 @@
+# Mapeo dinámico: campos lógicos del estándar → campos REALES del proyecto Jira.
+# 1) python3 qa/scripts/jira_bug.py discover --project <KEY> --out <campaña>/jira-meta.json
+# 2) python3 qa/scripts/jira_bug.py suggest-mapping --meta <campaña>/jira-meta.json   (propone; un humano/agente confirma)
+# 3) Completar este archivo SOLO con IDs y valores que aparezcan en jira-meta.json. Nada inventado.
+# Si un campo lógico no tiene campo en Jira: jira_field: null → va a la descripción con etiqueta.
+proyecto: null                 # clave, p. ej. DENT
+tipo_issue: Bug                # nombre exacto en el proyecto
+api_version: 3                 # 3 = Jira Cloud (ADF) | 2 = Server/Data Center (wiki)
+campos:
+  prioridad:
+    jira_field: null           # p. ej. priority
+    valores: {}                # P0: Highest ... (escala del proyecto; documentar el mapeo)
+  severidad:
+    jira_field: null           # p. ej. customfield_10045
+    valores: {}                # Crítica: <opción real> ...
+  entorno:
+    jira_field: null           # p. ej. environment (texto) o customfield de opción
+    valores: {}                # vacío = texto libre
+  version:
+    jira_field: null           # p. ej. versions (Affects versions) si las versiones existen en Jira
+  fecha_deteccion:
+    jira_field: null
+  modulo:
+    jira_field: null           # p. ej. components
+    valores: {}
+  etiquetas:
+    jira_field: labels
+issue_origen:
+  tipo_vinculo: null           # nombre exacto del link type, p. ej. "Relates"; null = va en la descripción
+adjuntar_evidencias: true
+etiquetas_fijas: [qa-agentico]

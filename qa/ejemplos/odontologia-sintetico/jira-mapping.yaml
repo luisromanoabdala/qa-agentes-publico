@@ -1,0 +1,15 @@
+# EJEMPLO: mapeo contra un Jira ficticio. En un proyecto real, generar con discover + suggest-mapping y confirmar.
+proyecto: DEMO
+tipo_issue: Bug
+api_version: 3
+campos:
+  prioridad: {jira_field: priority, valores: {P0: Highest, P1: High, P2: Medium, P3: Low}}
+  severidad: {jira_field: customfield_10050, valores: {}}
+  entorno: {jira_field: environment, valores: {}}
+  version: {jira_field: null}
+  fecha_deteccion: {jira_field: null}
+  modulo: {jira_field: null, valores: {}}
+  etiquetas: {jira_field: labels}
+issue_origen: {tipo_vinculo: Relates}
+adjuntar_evidencias: true
+etiquetas_fijas: [qa-agentico]

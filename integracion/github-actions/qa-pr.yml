@@ -1,0 +1,81 @@
+# Revisión QA automática de cada Pull Request hacia las ramas principales.
+# Copiar a .github/workflows/qa-pr.yml en el repo de la app.
+#
+# Configuración del repo (Settings → Secrets and variables → Actions):
+#   ANTHROPIC_API_KEY  (secret) clave de la API de Anthropic (o usá claude_code_oauth_token con CLAUDE_CODE_OAUTH_TOKEN)
+#   QA_AGENTES_REPO    (variable, opcional) usuario/repo de tu copia de los agentes; por defecto luisromanoabdala/qa-agentes
+#   QA_AGENTES_TOKEN   (secret, opcional) token de solo lectura, solo si tu copia de los agentes es privada
+#
+# Qué hace: el orquestador qa-lead analiza el diff del PR con qa-analista-impacto y qa-seguridad, propone casos,
+# comenta el resultado en el PR y, si la recomendación es "No apta", marca el check en rojo.
+# Para que bloquee el merge: Settings → Branches → regla de la rama → "Require status checks" → "QA / revisión".
+name: QA
+
+on:
+  pull_request:
+    branches: [main, master, test, develop]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: qa-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  revision:
+    name: revisión
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Traer los agentes QA
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.QA_AGENTES_REPO || 'luisromanoabdala/qa-agentes' }}
+          token: ${{ secrets.QA_AGENTES_TOKEN || github.token }}
+          path: .qa-agentes
+
+      - name: Instalar agentes en el repo
+        run: |
+          bash .qa-agentes/integracion/instalar.sh --repo .
+          echo "QA_KIT=$PWD/.qa-agentes" >> "$GITHUB_ENV"
+
+      - name: Validar campañas QA del repo (si hay)
+        run: |
+          for c in $(find .qa/campanias -name campania.yaml -exec dirname {} \; 2>/dev/null); do
+            python3 .qa-agentes/qa/scripts/validate_campaign.py "$c"
+          done
+
+      - name: Revisión QA del PR
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Usá la skill qa-lead en modo revisión de PR.
+            Repo: ${{ github.repository }}. PR #${{ github.event.pull_request.number }}: "${{ github.event.pull_request.title }}".
+            Rango: ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} (rama destino ${{ github.base_ref }}).
+            1. Lanzá qa-analista-impacto y qa-seguridad sobre el diff (impacto directo e indirecto, riesgos, hallazgos con archivo:línea).
+            2. Sumá casos de prueba sugeridos por riesgo y qué niveles faltan (unitario, integración, e2e).
+            3. Escribí el reporte en .qa/reportes/pr-${{ github.event.pull_request.number }}.md. La primera línea debe ser exactamente
+               "Recomendación: <Apta|Apta con riesgos aceptados|No apta|Sin evidencia suficiente>".
+            4. Publicá el reporte como comentario del PR con: gh pr comment ${{ github.event.pull_request.number }} --body-file <reporte>
+            Solo lectura sobre el código: no ejecutes contra ambientes, no instales dependencias y no crees issues en Jira.
+          claude_args: >-
+            --max-turns 40
+            --allowedTools "Read,Grep,Glob,Write,Task,Skill,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(python3:*),Bash(gh pr comment:*)"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Resultado
+        run: |
+          f=".qa/reportes/pr-${{ github.event.pull_request.number }}.md"
+          [ -f "$f" ] || { echo "::warning::No se generó el reporte QA"; exit 0; }
+          v="$(head -1 "$f")"; echo "$v" >> "$GITHUB_STEP_SUMMARY"
+          if echo "$v" | grep -q "No apta"; then echo "::error::$v"; exit 1; fi

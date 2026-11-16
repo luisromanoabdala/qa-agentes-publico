@@ -1,0 +1,17 @@
+# Hallazgos con nivel de confirmación. Compartido: cada agente agrega, nadie borra lo de otro.
+hallazgos: []
+# - id: HAL-001
+#   titulo: "..."
+#   modulo: "..."
+#   confirmacion: estatico | hipotesis | reproducido | bloqueado | descartado
+#   categoria: funcional | seguridad | datos | rendimiento | accesibilidad | testabilidad | requisito
+#   detectado_por: qa-analista-impacto
+#   fecha: AAAA-MM-DD
+#   origen: "src/x.ts:42 createAppointment" | TC-xxx | EXE-xxx
+#   descripcion: "..."
+#   como_verificar: "..."          # obligatorio si hipotesis/estatico
+#   ejecuciones: []                # obligatorio si reproducido
+#   bloqueo: null                  # obligatorio si bloqueado
+#   motivo: null                   # obligatorio si descartado
+#   riesgos: []
+#   bug: null

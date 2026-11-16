@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Hook pre-push: antes de pushear a una rama principal, el orquestador QA analiza el impacto del cambio.
+#
+# Instalación (en el repo de la app):
+#   cp "$QA_KIT/integracion/hooks/pre-push" .githooks/pre-push && chmod +x .githooks/pre-push
+#   git config core.hooksPath .githooks
+#
+# Variables opcionales:
+#   QA_RAMAS="main test"   ramas que disparan el análisis (por defecto: main master test develop)
+#   QA_BLOQUEAR=1          cancela el push si la recomendación es "No apta"
+#   QA_SALTEAR=1           saltea el análisis una vez (QA_SALTEAR=1 git push)
+set -uo pipefail
+
+[[ "${QA_SALTEAR:-0}" == "1" ]] && exit 0
+command -v claude >/dev/null || { echo "[QA] Claude Code no está instalado: se saltea el análisis."; exit 0; }
+
+RAMAS="${QA_RAMAS:-main master test develop}"
+REPORTES=".qa/reportes"
+mkdir -p "$REPORTES"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  rama="${remote_ref#refs/heads/}"
+  [[ " $RAMAS " == *" $rama "* ]] || continue
+  [[ "$local_sha" =~ ^0+$ ]] && continue                      # borrado de rama
+  base="$remote_sha"; [[ "$base" =~ ^0+$ ]] && base="$(git merge-base "$local_sha" "origin/$rama" 2>/dev/null || git rev-list --max-parents=0 "$local_sha" | tail -1)"
+
+  reporte="$REPORTES/push-$rama-$(git rev-parse --short "$local_sha").md"
+  echo "[QA] Analizando $base..$local_sha antes de pushear a $rama (puede tardar unos minutos)…"
+  claude -p "Usá la skill qa-lead en modo revisión de PR sobre el rango $base..$local_sha de este repo (rama destino: $rama).
+Lanzá qa-analista-impacto y qa-seguridad sobre el diff, sumá los casos de prueba sugeridos y escribí el reporte en $reporte.
+La primera línea del reporte debe ser exactamente: Recomendación: <Apta|Apta con riesgos aceptados|No apta|Sin evidencia suficiente>.
+Solo lectura sobre el código: no ejecutes contra ambientes, no instales dependencias y no crees issues en Jira." \
+    --allowedTools "Read,Grep,Glob,Write,Task,Skill,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git rev-parse:*),Bash(python3:*)" \
+    --max-turns 40 >/dev/null || { echo "[QA] El análisis no terminó; el push sigue."; exit 0; }
+
+  veredicto="$(head -1 "$reporte" 2>/dev/null)"
+  echo "[QA] $veredicto  → $reporte"
+  if [[ "${QA_BLOQUEAR:-0}" == "1" && "$veredicto" == *"No apta"* ]]; then
+    echo "[QA] Push cancelado. Revisá el reporte o pusheá con QA_SALTEAR=1 si el riesgo está aceptado."
+    exit 1
+  fi
+done
+exit 0

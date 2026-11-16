@@ -1,0 +1,51 @@
+# Contexto inicial de campaña QA — completar lo que se sepa; lo desconocido va a `pendientes`.
+# Dueño: qa-lead. Validar con: python3 qa/scripts/validate_campaign.py <carpeta>
+# NUNCA escribir aquí contraseñas, tokens ni datos personales reales: solo NOMBRES de variables de entorno.
+version_contrato: 1
+campania:
+  id: C01                      # único dentro del proyecto
+  nombre: "<nombre corto>"
+  ejemplo: false               # true solo para ejemplos/datos ficticios
+  estado: preparacion          # preparacion | en_curso | cerrada
+  fase: integracion_qa         # requisitos | diseno | desarrollo_pr | integracion_qa | prelanzamiento | posdespliegue
+  objetivo: "<qué decisión debe habilitar esta campaña>"
+  zona_horaria: America/Argentina/Tucuman
+  inicio: null                 # AAAA-MM-DD
+proyecto:
+  nombre: "<producto>"
+  organizacion: "<cliente/startup>"
+  repositorios: []             # - {url: ..., ruta_local: ..., rama: ..., commit_analizado: null}
+  plataformas: []              # web | mobile-ios | mobile-android | escritorio | api
+ambiente:
+  nombre: null                 # QA | Staging | Prod | ...
+  url_web: null
+  url_api: null
+  version_build: null          # lo verificado; si no se puede verificar: "No verificada"
+  commit: null
+  es_produccion: false
+documentacion: []              # - {tipo: historias|criterios|funcional|openapi|otro, ref: ruta o URL}
+requisitos: []                 # - {id: DENT-12, titulo: ..., fuente: ..., criterios: [..]}
+roles: []                      # - {nombre: odontologo, descripcion: ..., env_email: QA_USER_ODONTOLOGO_EMAIL, env_password: QA_USER_ODONTOLOGO_PASSWORD, disponible: false}
+accesos:
+  secretos_via: env            # env | 1password | doppler | gh-secrets | otro
+  db_solo_lectura: null        # nombre de variable, p. ej. QA_DB_URL_RO
+destinos:
+  casos: repo                  # repo | xray | zephyr | qmetry | testrail | otro (solo si está confirmado)
+  bugs:
+    sistema: jira
+    proyecto: null             # clave del proyecto Jira indicada por el usuario (sin ella, los bugs quedan en borrador)
+    issue_origen: null
+autorizaciones:                # lo que NO esté en true está prohibido
+  crear_datos: false
+  modificar_datos: false
+  eliminar_datos: false
+  pruebas_destructivas: false
+  pruebas_carga: false
+  crear_bugs_jira: false       # true cuando el usuario indicó el proyecto: autoriza crear Bugs sin confirmar cada uno
+  escribir_en_repo_app: false  # p. ej. agregar framework E2E en una rama
+alcance:
+  incluye: []
+  excluye: []
+  flujos_prioritarios: []
+pendientes: []                 # - {que: ..., a_quien: ..., bloquea: [..]}
+bloqueos: []                   # - {id: BLK-001, descripcion: ..., impacta: [..], necesita: ..., detectado: AAAA-MM-DD, estado: abierto}

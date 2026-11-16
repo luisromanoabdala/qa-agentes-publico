@@ -1,0 +1,15 @@
+# Riesgos priorizados. Dueño: qa-analista-impacto (alta) / qa-estratega (priorización).
+# probabilidad e impacto: 1 (bajo) a 3 (alto). nivel = probabilidad x impacto (1-9). prioridad: alta >=6, media 3-4, baja <=2
+riesgos:
+  - id: RSK-001
+    titulo: "<qué puede salir mal>"
+    modulo: "<módulo real descubierto>"
+    descripcion: "<por qué y para quién>"
+    origen: "<analisis.md §x | requisito | HAL-xxx>"
+    tipo: hecho                # hecho (basado en código/doc) | hipotesis
+    probabilidad: 2
+    impacto: 3
+    nivel: 6
+    prioridad: alta
+    niveles_prueba: [unitario, integracion, e2e]
+    requisitos: []

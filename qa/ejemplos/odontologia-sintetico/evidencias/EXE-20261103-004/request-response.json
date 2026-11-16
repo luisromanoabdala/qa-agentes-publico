@@ -1,0 +1,12 @@
+{
+  "_nota": "EJEMPLO FICTICIO — sanitizado",
+  "solicitudes": [
+    {"request": {"method": "POST", "url": "$QA_API_URL/turnos", "headers": {"Authorization": "Bearer <REDACTED>"},
+                 "body": {"sillonId": "S3", "pacienteId": "pac_qa_r7f6", "inicio": "2026-11-04T12:00:00-03:00", "duracionMin": 30}},
+     "response": {"status": 201, "body": {"id": "tur_qa_0101", "estado": "pendiente"}}},
+    {"request": {"method": "POST", "url": "$QA_API_URL/turnos", "headers": {"Authorization": "Bearer <REDACTED>"},
+                 "body": {"sillonId": "S3", "pacienteId": "pac_qa_r7f6", "inicio": "2026-11-04T12:00:00-03:00", "duracionMin": 30}},
+     "response": {"status": 201, "body": {"id": "tur_qa_0102", "estado": "pendiente"}}}
+  ],
+  "verificacion": {"request": "GET $QA_API_URL/turnos?sillon=S3&fecha=2026-11-04", "status": 200, "turnos": ["tur_qa_0101", "tur_qa_0102"]}
+}

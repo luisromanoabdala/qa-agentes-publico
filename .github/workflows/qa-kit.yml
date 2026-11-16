@@ -1,0 +1,25 @@
+name: QA kit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r qa/scripts/requirements.txt
+      - name: Tests de scripts (Jira simulado, validador)
+        run: python -m unittest discover -s qa/scripts/tests -v
+      - name: Frontmatter de agentes QA
+        run: python qa/scripts/check_agents.py
+      - name: Validar la campaña de ejemplo
+        run: python qa/scripts/validate_campaign.py qa/ejemplos/odontologia-sintetico --estricto
+      - name: Sintaxis de los scripts de integración
+        run: bash -n integracion/instalar.sh && bash -n integracion/hooks/pre-push

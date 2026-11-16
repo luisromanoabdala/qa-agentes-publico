@@ -1,0 +1,75 @@
+# EJEMPLO con datos sintéticos — no corresponde a ninguna app real.
+version_contrato: 1
+campania:
+  id: EJ01
+  nombre: "EJEMPLO — Regresión agenda y ficha clínica (consultorio ficticio)"
+  ejemplo: true
+  estado: en_curso
+  fase: integracion_qa
+  objetivo: "Decidir si la versión 1.4.0-rc2 puede pasar a Staging para la demo con consultorios piloto"
+  zona_horaria: America/Argentina/Tucuman
+  inicio: 2026-11-03
+proyecto:
+  nombre: "DentApp (ficticia)"
+  organizacion: "Clínica Ejemplo S.A. (ficticia)"
+  repositorios:
+    - {url: "https://git.example.test/dentapp/web", ruta_local: null, rama: release/1.4, commit_analizado: "a1b2c3d"}
+    - {url: "https://git.example.test/dentapp/api", ruta_local: null, rama: release/1.4, commit_analizado: "e4f5a6b"}
+  plataformas: [web, api]
+ambiente:
+  nombre: QA
+  url_web: https://qa.dentapp.example.test
+  url_api: https://api.qa.dentapp.example.test
+  version_build: "1.4.0-rc2 (verificada en /api/health)"
+  commit: "e4f5a6b"
+  es_produccion: false
+documentacion:
+  - {tipo: historias, ref: "Jira DEMO (ficticio): DEMO-21, DEMO-22, DEMO-30"}
+  - {tipo: openapi, ref: "api/openapi.yaml @ e4f5a6b (ficticio)"}
+requisitos:
+  - id: DEMO-21
+    titulo: "Agendar turno por sillón"
+    fuente: "Historia DEMO-21"
+    criterios:
+      - "Un sillón no puede tener dos turnos superpuestos"
+      - "Duración mínima 15 min, máxima 240 min"
+  - id: DEMO-22
+    titulo: "Cancelar y reprogramar turnos"
+    fuente: "Historia DEMO-22"
+    criterios: ["Un turno cancelado libera el horario", "Solo turnos 'confirmado' o 'pendiente' pueden cancelarse"]
+  - id: DEMO-30
+    titulo: "Ficha clínica visible solo para profesionales del consultorio"
+    fuente: "Historia DEMO-30"
+    criterios: ["Recepción ve datos de contacto, no evoluciones clínicas", "Ningún usuario ve pacientes de otro consultorio"]
+roles:
+  - {nombre: odontologo, descripcion: "Profesional", env_email: QA_USER_ODONTOLOGO_EMAIL, env_password: QA_USER_ODONTOLOGO_PASSWORD, disponible: true}
+  - {nombre: recepcion, descripcion: "Recepción/secretaría", env_email: QA_USER_RECEPCION_EMAIL, env_password: QA_USER_RECEPCION_PASSWORD, disponible: true}
+  - {nombre: admin_consultorio_b, descripcion: "Admin de otro consultorio (aislamiento)", env_email: QA_USER_ADMINB_EMAIL, env_password: QA_USER_ADMINB_PASSWORD, disponible: false}
+accesos:
+  secretos_via: env
+  db_solo_lectura: QA_DB_URL_RO
+destinos:
+  casos: repo
+  bugs: {sistema: jira, proyecto: null, issue_origen: null}
+autorizaciones:
+  crear_datos: true
+  modificar_datos: true
+  eliminar_datos: true
+  pruebas_destructivas: false
+  pruebas_carga: false
+  crear_bugs_jira: false
+  escribir_en_repo_app: true
+alcance:
+  incluye: [Agenda, Ficha clínica (permisos), Pacientes (alta)]
+  excluye: ["Pagos (integración en sandbox no disponible)", "App mobile"]
+  flujos_prioritarios: ["Agendar turno", "Cancelar turno", "Ver ficha según rol"]
+pendientes:
+  - {que: "Cuenta admin de un segundo consultorio para probar aislamiento", a_quien: "Equipo backend (ficticio)", bloquea: [TC-HC-003]}
+  - {que: "Clave del proyecto Jira para registrar bugs", a_quien: "QA Lead", bloquea: [BUGD-001]}
+bloqueos:
+  - id: BLK-001
+    descripcion: "No existe cuenta de un segundo consultorio en QA"
+    impacta: [TC-HC-003, RSK-002]
+    necesita: "Crear usuario admin en consultorio B y exponerlo como QA_USER_ADMINB_*"
+    detectado: 2026-11-03
+    estado: abierto
